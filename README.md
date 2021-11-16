@@ -13,6 +13,9 @@ Text(
 )
 ```
 
+![Jetpack Compose Impression Tracker](https://user-images.githubusercontent.com/1386930/141935431-6039b847-74aa-4407-96a4-85b2f1695159.gif)
+
+
 ## Flexible
 
 You can customize `DefaultImpressionState`'s parameters.
