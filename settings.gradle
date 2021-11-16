@@ -8,4 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "compose-impression"
 include ':app'
-include ':composeimpression'
+include ':compose-impression'
