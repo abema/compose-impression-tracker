@@ -44,17 +44,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun List() {
-  ProvideImpressionState(rememberDefaultImpressionState()) {
-    Text(
-      "text",
-      Modifier.
-      impression(
-        key = "key",
-        impression = { key ->
-          println("impressed:$key")
-        })
-    )
-  }
+  val impressionState = rememberDefaultImpressionState()
   LazyColumn(Modifier.padding(bottom = 30.dp)) {
     itemsIndexed((0..1000).toList()) { index, item ->
       // for recompose (this is not needed for production app)
