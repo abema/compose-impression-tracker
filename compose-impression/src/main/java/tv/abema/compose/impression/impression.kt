@@ -31,13 +31,27 @@ import kotlinx.coroutines.launch
 
 fun Modifier.impression(
   key: Any = Unit,
-  impressionState: ImpressionState? = null,
   impression: (key: Any) -> Unit
-): Modifier = composed {
-  val view = LocalView.current
-  val impressionState = impressionState ?: LocalImpressionState.current ?: run {
-    rememberImpressionState()
+) = composed {
+  impression(
+    key = key,
+    impressionState = LocalImpressionState.current ?: run {
+      rememberImpressionState()
+    },
+    impression = impression
+  )
+}
+
+fun Modifier.impression(
+  key: Any = Unit,
+  impressionState: ImpressionState,
+  impression: (key: Any) -> Unit
+): Modifier = composed(
+  inspectorInfo = {
+    properties["key"] = key
   }
+) {
+  val view = LocalView.current
   LaunchedEffect(key1 = key) {
     impressionState.impressFlow.collect {
       if (key == it) {
