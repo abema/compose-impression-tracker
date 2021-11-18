@@ -20,12 +20,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 fun Modifier.impression(
   key: Any = Unit,
@@ -83,9 +85,11 @@ fun rememberDefaultImpressionState(): DefaultImpressionState {
 class DefaultImpressionState(
   lifecycle: Lifecycle,
   coroutinesLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit = { block ->
-    lifecycle.coroutineScope.launchWhenStarted(
-      block
-    )
+    lifecycle.coroutineScope.launch {
+      lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+        block()
+      }
+    }
   },
   private val impressionDuration: Long = 1000L,
   private val checkInterval: Long = 1000L,
