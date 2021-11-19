@@ -28,12 +28,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun impressing() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -49,12 +51,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun impressed() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -70,12 +74,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun notImpressWhenOut() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -93,12 +99,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun notImpressWhenDispose() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -115,19 +123,20 @@ class DefaultImpressionStateTest {
 
   @Test
   fun multipleImpress() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key1 = "impression key1"
       val key2 = "impression key2"
 
       val rect = Rect(0F, 0F, 10F, 10F)
       impressionState.onLayoutCoordinatesChange(key1, IntSize(10, 10), rect, rect)
       impressionState.onLayoutCoordinatesChange(key2, IntSize(10, 10), rect, rect)
-
 
       advanceTimeBy(1000)
 
@@ -144,12 +153,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun captureNextImpression() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -165,12 +176,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun notImpressedTwice() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -184,7 +197,6 @@ class DefaultImpressionStateTest {
       impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
       advanceTimeBy(2000)
 
-
       impressionState.impressingItem shouldBe emptyMap()
       impressionState.impressedItem
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
@@ -193,12 +205,14 @@ class DefaultImpressionStateTest {
 
   @Test
   fun impressedAndClear() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -221,17 +235,19 @@ class DefaultImpressionStateTest {
 
   @Test
   fun clearByLifecycle() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(
-        lifecycle = lifecycle,
-        coroutineLauncher = coroutineLauncher,
-        currentTimeProducer = currentTimeProducer,
-        clearLifecycleState = Lifecycle.State.CREATED
-      )
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(
+          lifecycle = lifecycle,
+          coroutineLauncher = coroutineLauncher,
+          currentTimeProducer = currentTimeProducer,
+          clearLifecycleState = Lifecycle.State.CREATED
+        )
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -257,17 +273,19 @@ class DefaultImpressionStateTest {
 
   @Test
   fun impressedImmediateWhenImpressionDurationIsZero() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(
-        lifecycle = lifecycle,
-        coroutineLauncher = coroutineLauncher,
-        currentTimeProducer = currentTimeProducer,
-        impressionDuration = 0L
-      )
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(
+          lifecycle = lifecycle,
+          coroutineLauncher = coroutineLauncher,
+          currentTimeProducer = currentTimeProducer,
+          impressionDuration = 0L
+        )
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
@@ -283,17 +301,19 @@ class DefaultImpressionStateTest {
 
   @Test
   fun impressedCompleteVisible() {
-    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
-      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-      currentTimeProducer: () -> Long
-      ->
-      createDefaultImpressionState(
-        lifecycle = lifecycle,
-        coroutineLauncher = coroutineLauncher,
-        currentTimeProducer = currentTimeProducer,
-        visibleRatio = 1F
-      )
-    }) { impressionState ->
+    impressionTest(
+      impressionStateFactory = { lifecycle: Lifecycle,
+        coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+        currentTimeProducer: () -> Long
+        ->
+        createDefaultImpressionState(
+          lifecycle = lifecycle,
+          coroutineLauncher = coroutineLauncher,
+          currentTimeProducer = currentTimeProducer,
+          visibleRatio = 1F
+        )
+      }
+    ) { impressionState ->
       val key = "impression key"
 
       val rect = Rect(0F, 0F, 10F, 10F)
