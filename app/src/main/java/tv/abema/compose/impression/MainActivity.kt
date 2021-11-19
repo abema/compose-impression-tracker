@@ -56,7 +56,7 @@ fun List() {
         impression(
           key = item,
           impressionState = impressionState,
-          impression = { key ->
+          onImpression = { key ->
             println("impressed:$key")
           })
       )

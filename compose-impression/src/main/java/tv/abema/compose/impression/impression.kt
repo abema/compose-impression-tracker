@@ -29,23 +29,23 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-fun Modifier.impression(
-  key: Any = Unit,
-  impression: (key: Any) -> Unit
+fun <T : Any> Modifier.impression(
+  key: T,
+  onImpression: (key: T) -> Unit
 ) = composed {
   impression(
     key = key,
     impressionState = LocalImpressionState.current ?: run {
       rememberImpressionState()
     },
-    impression = impression
+    onImpression = onImpression
   )
 }
 
-fun Modifier.impression(
-  key: Any = Unit,
+fun <T : Any> Modifier.impression(
+  key: T,
   impressionState: ImpressionState,
-  impression: (key: Any) -> Unit
+  onImpression: (key: T) -> Unit
 ): Modifier = composed(
   inspectorInfo = {
     properties["key"] = key
@@ -55,7 +55,7 @@ fun Modifier.impression(
   LaunchedEffect(key1 = key) {
     impressionState.impressFlow.collect {
       if (key == it) {
-        impression(it)
+        onImpression(key)
       }
     }
   }
