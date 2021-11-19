@@ -29,7 +29,6 @@ val impressionState = remember {
     impressionDuration = 1000,
     checkInterval = 1000,
     visibleRatio = 0.5,
-    clearLifecycleState = Lifecycle.State.DESTROYED,
   )
 }
 Text(
