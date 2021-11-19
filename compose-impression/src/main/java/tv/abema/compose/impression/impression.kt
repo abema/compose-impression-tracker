@@ -17,8 +17,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
@@ -97,20 +95,32 @@ fun rememberDefaultImpressionState(): DefaultImpressionState {
 }
 
 class DefaultImpressionState(
-  lifecycle: Lifecycle,
-  coroutinesLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit = { block ->
-    lifecycle.coroutineScope.launch {
-      lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-        block()
-      }
-    }
-  },
-  private val impressionDuration: Long = 1000L,
-  private val checkInterval: Long = 1000L,
-  private val visibleRatio: Float = 0.5F,
-  private val clearLifecycleState: Lifecycle.State? = null,
+  coroutinesLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+  private val impressionDuration: Long = DEFAULT_IMPRESSION_DURATION,
+  private val checkInterval: Long = DEFAULT_CHECK_INTERVAL,
+  private val visibleRatio: Float = DEFAULT_VISIBLE_RATIO,
   private val currentTimeProducer: () -> Long = { System.currentTimeMillis() }
 ) : ImpressionState {
+  constructor(
+    lifecycle: Lifecycle,
+    impressionDuration: Long = DEFAULT_IMPRESSION_DURATION,
+    checkInterval: Long = DEFAULT_CHECK_INTERVAL,
+    visibleRatio: Float = DEFAULT_VISIBLE_RATIO,
+    currentTimeProducer: () -> Long = { System.currentTimeMillis() }
+  ) : this(
+    coroutinesLauncher = { block ->
+      lifecycle.coroutineScope.launch {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+          block()
+        }
+      }
+    },
+    impressionDuration = impressionDuration,
+    checkInterval = checkInterval,
+    visibleRatio = visibleRatio,
+    currentTimeProducer = currentTimeProducer
+  )
+
   private val mutableSharedFlow = MutableSharedFlow<Any>()
   override val impressFlow: SharedFlow<Any> = mutableSharedFlow.asSharedFlow()
 
@@ -127,15 +137,6 @@ class DefaultImpressionState(
   data class Impression(val key: Any, val impressionLoopCount: Long)
 
   init {
-    if (clearLifecycleState != null) {
-      lifecycle.addObserver(object : LifecycleEventObserver {
-        override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-          if (event.targetState == clearLifecycleState) {
-            clear()
-          }
-        }
-      })
-    }
     coroutinesLauncher {
       while (true) {
         currentLoopCount++
@@ -192,6 +193,12 @@ class DefaultImpressionState(
 
   override fun onDispose(key: Any) {
     mutableImpressingItem.remove(key)
+  }
+
+  companion object {
+    const val DEFAULT_IMPRESSION_DURATION: Long = 1000L
+    const val DEFAULT_CHECK_INTERVAL: Long = 1000L
+    const val DEFAULT_VISIBLE_RATIO: Float = 0.5F
   }
 }
 
