@@ -141,7 +141,6 @@ class DefaultImpressionState(
         currentLoopCount++
         val time = currentTimeProducer()
         val impressions = mutableImpressingItem.values.toList().takeWhile {
-          println("it.startTime:" + it.startTime + " time - impressionDuration:" + (time - impressionDuration))
           it.startTime <= time - impressionDuration
         }
         impressions.forEach { impression ->

@@ -163,7 +163,6 @@ class DefaultImpressionStateTest {
     }
   }
 
-
   @Test
   fun notImpressedTwice() {
     impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
@@ -212,6 +211,42 @@ class DefaultImpressionStateTest {
       impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
 
       // found item in next loop and impress in the next loop
+      advanceTimeBy(2000)
+
+      impressionState.impressingItem shouldBe emptyMap()
+      impressionState.impressedItem
+        .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 2)))
+    }
+  }
+
+  @Test
+  fun clearByLifecycle() {
+    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
+      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+      currentTimeProducer: () -> Long
+      ->
+      createDefaultImpressionState(
+        lifecycle = lifecycle,
+        coroutineLauncher = coroutineLauncher,
+        currentTimeProducer = currentTimeProducer,
+        clearLifecycleState = Lifecycle.State.CREATED
+      )
+    }) { impressionState ->
+      val key = "impression key"
+
+      val rect = Rect(0F, 0F, 10F, 10F)
+      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
+      advanceTimeBy(1000)
+      impressionState.impressingItem shouldBe emptyMap()
+      impressionState.impressedItem
+        .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
+
+      handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
+      advanceTimeBy(2000)
+      handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+
+      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
       advanceTimeBy(2000)
 
       impressionState.impressingItem shouldBe emptyMap()
@@ -278,23 +313,29 @@ class DefaultImpressionStateTest {
     currentTimeProducer: () -> Long,
     impressionDuration: Long = 1000,
     visibleRatio: Float = 0.5F,
+    clearLifecycleState: Lifecycle.State? = null,
   ) = DefaultImpressionState(
     lifecycle = lifecycle,
     coroutinesLauncher = coroutineLauncher,
     impressionDuration = impressionDuration,
     checkInterval = 1000,
     visibleRatio = visibleRatio,
-    clearLifecycleState = null,
+    clearLifecycleState = clearLifecycleState,
     currentTimeProducer = currentTimeProducer
   )
 
   class ImpressionTestScope(
     private val testCoroutineScope: TestCoroutineScope,
-    private val currentTimeProducer: CurrentTimeProducer
+    private val currentTimeProducer: CurrentTimeProducer,
+    private val testLifecycleOwner: TestLifecycleOwner
   ) {
     fun advanceTimeBy(time: Long) {
       currentTimeProducer.currentTime = time
       testCoroutineScope.advanceTimeBy(time)
+    }
+
+    fun handleLifecycleEvent(event: Lifecycle.Event) {
+      testLifecycleOwner.lifecycle.handleLifecycleEvent(event)
     }
   }
 
@@ -310,10 +351,14 @@ class DefaultImpressionStateTest {
       // https://github.com/Kotlin/kotlinx.coroutines/issues/1910
       Job()
     ) {
-      Dispatchers.setMain(coroutineContext[CoroutineDispatcher.Key] as CoroutineDispatcher)
+      val dispatcher = coroutineContext[CoroutineDispatcher.Key] as CoroutineDispatcher
+      Dispatchers.setMain(dispatcher)
 
       pauseDispatcher()
-      val testLifecycleOwner = TestLifecycleOwner(initialState = Lifecycle.State.RESUMED)
+      val testLifecycleOwner = TestLifecycleOwner(
+        initialState = Lifecycle.State.RESUMED,
+        coroutineDispatcher = dispatcher
+      )
       val currentTimeProducer = CurrentTimeProducer()
       var launchedJob: Job? = null
       val coroutinesLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit =
@@ -323,7 +368,7 @@ class DefaultImpressionStateTest {
         impressionStateFactory(lifecycle, coroutinesLauncher, currentTimeProducer)
 
       try {
-        block(ImpressionTestScope(this, currentTimeProducer), impressionState)
+        block(ImpressionTestScope(this, currentTimeProducer, testLifecycleOwner), impressionState)
       } catch (e: Exception) {
         e.printStackTrace()
         failure("fail to execute impressionTest", e)
