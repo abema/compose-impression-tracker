@@ -1,0 +1,11 @@
+name: test
+on: [push]
+jobs:
+  kotlin:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          java-version: '11'
+      - run: ./gradlew testDebugUnitTest
