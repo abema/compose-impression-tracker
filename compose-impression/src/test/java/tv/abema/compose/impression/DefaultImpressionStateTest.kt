@@ -163,6 +163,35 @@ class DefaultImpressionStateTest {
     }
   }
 
+
+  @Test
+  fun notImpressedTwice() {
+    impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
+      coroutineLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
+      currentTimeProducer: () -> Long
+      ->
+      createDefaultImpressionState(lifecycle, coroutineLauncher, currentTimeProducer)
+    }) { impressionState ->
+      val key = "impression key"
+
+      val rect = Rect(0F, 0F, 10F, 10F)
+      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
+      advanceTimeBy(1000)
+
+      val outRect = Rect(0F, 0F, 0F, 0F)
+      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), outRect, outRect)
+      advanceTimeBy(2000)
+
+      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
+      advanceTimeBy(2000)
+
+
+      impressionState.impressingItem shouldBe emptyMap()
+      impressionState.impressedItem
+        .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
+    }
+  }
+
   @Test
   fun impressedAndClear() {
     impressionTest(impressionStateFactory = { lifecycle: Lifecycle,
