@@ -69,3 +69,17 @@ spotless {
     ])
   }
 }
+
+afterEvaluate {
+  publishing {
+    publications {
+      release(MavenPublication) {
+        from components.release
+        groupId = 'com.github.abema.compose-impression-tracker'
+        artifactId = 'compose-impression'
+        version = '1.1'
+      }
+    }
+  }
+}
+
