@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="tv.abema.compose.impression"
+  package="tv.abema.compose.impression.sample"
   >
 
   <application
@@ -12,7 +12,7 @@
     android:theme="@style/Theme.Composeimpression"
     >
     <activity
-      android:name=".MainActivity"
+      android:name="tv.abema.compose.impression.MainActivity"
       android:exported="true"
       android:label="@string/app_name"
       android:theme="@style/Theme.Composeimpression.NoActionBar"
