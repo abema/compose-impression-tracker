@@ -96,15 +96,15 @@ fun rememberDefaultImpressionState(): DefaultImpressionState {
 
 class DefaultImpressionState(
   coroutinesLauncher: (block: suspend CoroutineScope.() -> Unit) -> Unit,
-  private val impressionDuration: Long = DEFAULT_IMPRESSION_DURATION,
-  private val checkInterval: Long = DEFAULT_CHECK_INTERVAL,
+  private val impressionDurationMs: Long = DEFAULT_IMPRESSION_DURATION_MS,
+  private val checkIntervalMs: Long = DEFAULT_CHECK_INTERVAL_MS,
   private val visibleRatio: Float = DEFAULT_VISIBLE_RATIO,
   private val currentTimeProducer: () -> Long = { System.currentTimeMillis() }
 ) : ImpressionState {
   constructor(
     lifecycle: Lifecycle,
-    impressionDuration: Long = DEFAULT_IMPRESSION_DURATION,
-    checkInterval: Long = DEFAULT_CHECK_INTERVAL,
+    impressionDuration: Long = DEFAULT_IMPRESSION_DURATION_MS,
+    checkInterval: Long = DEFAULT_CHECK_INTERVAL_MS,
     visibleRatio: Float = DEFAULT_VISIBLE_RATIO,
     currentTimeProducer: () -> Long = { System.currentTimeMillis() }
   ) : this(
@@ -115,8 +115,8 @@ class DefaultImpressionState(
         }
       }
     },
-    impressionDuration = impressionDuration,
-    checkInterval = checkInterval,
+    impressionDurationMs = impressionDuration,
+    checkIntervalMs = checkInterval,
     visibleRatio = visibleRatio,
     currentTimeProducer = currentTimeProducer
   )
@@ -124,16 +124,16 @@ class DefaultImpressionState(
   private val mutableSharedFlow = MutableSharedFlow<Any>()
   override val impressFlow: SharedFlow<Any> = mutableSharedFlow.asSharedFlow()
 
-  private val mutableImpressingItem: MutableMap<Any, ImpressingItem> = mutableMapOf()
-  val impressingItem: Map<Any, ImpressingItem> get() = mutableImpressingItem.toMap()
+  private val mutableVisibleItems: MutableMap<Any, VisibleItem> = mutableMapOf()
+  val visibleItems: Map<Any, VisibleItem> get() = mutableVisibleItems.toMap()
 
-  private val mutableAlreadySent: MutableMap<Any, Impression> = mutableMapOf()
-  val impressedItem: Map<Any, Impression> get() = mutableAlreadySent.toMap()
+  private val mutableAlreadySentItems: MutableMap<Any, Impression> = mutableMapOf()
+  val alreadySentItems: Map<Any, Impression> get() = mutableAlreadySentItems.toMap()
 
   var currentLoopCount = -1L
     private set
 
-  data class ImpressingItem(val key: Any, val startTime: Long)
+  data class VisibleItem(val key: Any, val startTime: Long)
   data class Impression(val key: Any, val impressionLoopCount: Long)
 
   init {
@@ -141,15 +141,14 @@ class DefaultImpressionState(
       while (true) {
         currentLoopCount++
         val time = currentTimeProducer()
-        val impressions = mutableImpressingItem.values.toList().takeWhile {
-          it.startTime <= time - impressionDuration
+        val impressions = mutableVisibleItems.values.toList().filter {
+          it.startTime <= time - impressionDurationMs && !alreadySentItems.containsKey(it.key)
         }
         impressions.forEach { impression ->
-          mutableAlreadySent[impression.key] = Impression(impression.key, currentLoopCount)
-          mutableImpressingItem.remove(impression.key)
+          mutableAlreadySentItems[impression.key] = Impression(impression.key, currentLoopCount)
           mutableSharedFlow.emit(impression.key)
         }
-        delay(checkInterval)
+        delay(checkIntervalMs)
       }
     }
   }
@@ -160,7 +159,7 @@ class DefaultImpressionState(
     boundsRect: Rect,
     composeViewRect: Rect
   ) {
-    if (mutableAlreadySent.contains(key)) {
+    if (mutableAlreadySentItems.contains(key)) {
       return
     }
 
@@ -178,26 +177,32 @@ class DefaultImpressionState(
     val visibleArea = visibleWidth * visibleHeight
 
     if (visibleArea / componentArea >= visibleRatio) {
-      mutableImpressingItem.getOrPut(key) {
-        ImpressingItem(key, currentTimeProducer())
+      mutableVisibleItems.getOrPut(key) {
+        VisibleItem(key, currentTimeProducer())
       }
     } else {
       onDispose(key)
     }
   }
 
-  fun clear() {
-    mutableAlreadySent.clear()
-    mutableImpressingItem.clear()
+  fun clearSentItems() {
+    mutableAlreadySentItems.clear()
+  }
+
+  fun setCurrentTimeToVisibleItemStartTime() {
+    val currentTimeMs = currentTimeProducer()
+    mutableVisibleItems.toMap().forEach { (key, value) ->
+      mutableVisibleItems[key] = value.copy(startTime = currentTimeMs)
+    }
   }
 
   override fun onDispose(key: Any) {
-    mutableImpressingItem.remove(key)
+    mutableVisibleItems.remove(key)
   }
 
   companion object {
-    const val DEFAULT_IMPRESSION_DURATION: Long = 1000L
-    const val DEFAULT_CHECK_INTERVAL: Long = 1000L
+    const val DEFAULT_IMPRESSION_DURATION_MS: Long = 1000L
+    const val DEFAULT_CHECK_INTERVAL_MS: Long = 1000L
     const val DEFAULT_VISIBLE_RATIO: Float = 0.5F
   }
 }
