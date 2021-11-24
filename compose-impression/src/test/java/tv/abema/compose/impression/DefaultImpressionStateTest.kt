@@ -40,9 +40,9 @@ class DefaultImpressionStateTest {
 
       advanceTimeBy(500)
 
-      impressionState.impressingItem
-        .shouldBe(mapOf(key to DefaultImpressionState.ImpressingItem(key, 0)))
-      impressionState.impressedItem shouldBe emptyMap()
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems shouldBe emptyMap()
     }
   }
 
@@ -62,8 +62,9 @@ class DefaultImpressionStateTest {
 
       advanceTimeBy(1000)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
     }
   }
@@ -87,8 +88,8 @@ class DefaultImpressionStateTest {
       impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), outRect, outRect)
       advanceTimeBy(500)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem shouldBe emptyMap()
+      impressionState.visibleItems shouldBe emptyMap()
+      impressionState.alreadySentItems shouldBe emptyMap()
     }
   }
 
@@ -110,8 +111,8 @@ class DefaultImpressionStateTest {
       impressionState.onDispose(key)
       advanceTimeBy(500)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem shouldBe emptyMap()
+      impressionState.visibleItems shouldBe emptyMap()
+      impressionState.alreadySentItems shouldBe emptyMap()
     }
   }
 
@@ -133,8 +134,11 @@ class DefaultImpressionStateTest {
 
       advanceTimeBy(1000)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems shouldBe mapOf(
+        "impression key1" to DefaultImpressionState.VisibleItem(key = key1, startTime = 0),
+        "impression key2" to DefaultImpressionState.VisibleItem(key = key2, startTime = 0)
+      )
+      impressionState.alreadySentItems
         .shouldBe(
           mapOf(
             key1 to DefaultImpressionState.Impression(key1, 0),
@@ -161,8 +165,9 @@ class DefaultImpressionStateTest {
 
       advanceTimeBy(1000)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem.get(key)?.impressionLoopCount shouldBe currentLoopCount + 1
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems[key]?.impressionLoopCount shouldBe currentLoopCount + 1
     }
   }
 
@@ -188,8 +193,9 @@ class DefaultImpressionStateTest {
       impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
       advanceTimeBy(2000)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
     }
   }
@@ -208,17 +214,19 @@ class DefaultImpressionStateTest {
       val rect = Rect(0F, 0F, 10F, 10F)
       impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
       advanceTimeBy(1000)
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
-      impressionState.clear()
-      impressionState.onLayoutCoordinatesChange(key, IntSize(10, 10), rect, rect)
+      impressionState.clearSentItems()
+      impressionState.setCurrentTimeToVisibleItemStartTime()
 
       // found item in next loop and impress in the next loop
       advanceTimeBy(2000)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 1000)))
+      impressionState.alreadySentItems
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 2)))
     }
   }
@@ -243,8 +251,9 @@ class DefaultImpressionStateTest {
 
       advanceTimeBy(1)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
     }
   }
@@ -269,8 +278,9 @@ class DefaultImpressionStateTest {
 
       advanceTimeBy(1000)
 
-      impressionState.impressingItem shouldBe emptyMap()
-      impressionState.impressedItem
+      impressionState.visibleItems
+        .shouldBe(mapOf(key to DefaultImpressionState.VisibleItem(key, 0)))
+      impressionState.alreadySentItems
         .shouldBe(mapOf(key to DefaultImpressionState.Impression(key, 0)))
     }
   }
@@ -282,8 +292,8 @@ class DefaultImpressionStateTest {
     visibleRatio: Float = 0.5F,
   ) = DefaultImpressionState(
     coroutinesLauncher = coroutineLauncher,
-    impressionDuration = impressionDuration,
-    checkInterval = 1000,
+    impressionDurationMs = impressionDuration,
+    checkIntervalMs = 1000,
     visibleRatio = visibleRatio,
     currentTimeProducer = currentTimeProducer
   )

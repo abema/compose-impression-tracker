@@ -49,7 +49,7 @@ fun List() {
     itemsIndexed((0..1000).toList()) { index, item ->
       // for recompose (this is not needed for production app)
       impressionState.impressFlow.collectAsState(initial = "").value
-      val isImpressed = impressionState.impressedItem.contains(item)
+      val isImpressed = impressionState.alreadySentItems.contains(item)
       Text(
         "$index isImpressed:$isImpressed",
         Modifier.
