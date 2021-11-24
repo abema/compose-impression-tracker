@@ -145,9 +145,9 @@ class DefaultImpressionState(
           it.startTime <= time - impressionDuration
         }
         impressions.forEach { impression ->
-          mutableSharedFlow.emit(impression.key)
           mutableAlreadySent[impression.key] = Impression(impression.key, currentLoopCount)
           mutableImpressingItem.remove(impression.key)
+          mutableSharedFlow.emit(impression.key)
         }
         delay(checkInterval)
       }
