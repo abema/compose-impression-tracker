@@ -21,8 +21,8 @@ import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -122,7 +122,7 @@ class DefaultImpressionState(
   )
 
   private val mutableSharedFlow = MutableSharedFlow<Any>()
-  override val impressFlow: SharedFlow<Any> = mutableSharedFlow.asSharedFlow()
+  override val impressFlow: Flow<Any> = mutableSharedFlow.asSharedFlow()
 
   private val mutableVisibleItems: MutableMap<Any, VisibleItem> = mutableMapOf()
   val visibleItems: Map<Any, VisibleItem> get() = mutableVisibleItems.toMap()
@@ -208,7 +208,7 @@ class DefaultImpressionState(
 }
 
 interface ImpressionState {
-  val impressFlow: SharedFlow<Any>
+  val impressFlow: Flow<Any>
 
   fun onLayoutCoordinatesChange(
     key: Any,
