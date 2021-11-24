@@ -142,8 +142,7 @@ class DefaultImpressionState(
         currentLoopCount++
         val time = currentTimeProducer()
         val impressions = mutableVisibleItems.values.toList().filter {
-          it.startTime <= time - impressionDurationMs
-              && !alreadySentItems.containsKey(it.key)
+          it.startTime <= time - impressionDurationMs && !alreadySentItems.containsKey(it.key)
         }
         impressions.forEach { impression ->
           mutableAlreadySentItems[impression.key] = Impression(impression.key, currentLoopCount)
