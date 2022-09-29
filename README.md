@@ -1,5 +1,3 @@
-# 🚧🚧🚧WORK IN PROGRESS🚧🚧🚧
-
 # Jetpack Compose Impression Tracker
 
 Track Jetpack Compose component impressions in a simple and flexible way
